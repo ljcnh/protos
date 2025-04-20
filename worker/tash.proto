@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package worker;
+
+// 定义请求消息
+message AsyncTaskRequest {
+  string task_type = 1;  // 任务类型，标识要执行的异步任务种类
+  bytes task_data = 2;   // 任务数据，可根据任务类型进行序列化
+}
+
+// 定义响应消息，立即返回任务ID
+message AsyncTaskResponse {
+  string task_id = 1;  // 分配给异步任务的唯一ID
+}
+
+// 定义任务状态查询请求
+message TaskStatusRequest {
+  string task_id = 1;  // 要查询状态的任务ID
+}
+
+// 定义任务状态响应
+message TaskStatusResponse {
+  enum Status {
+    UNKNOWN = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    COMPLETED = 3;
+    FAILED = 4;
+  }
+  Status status = 1;  // 任务当前状态
+  bytes result = 2;   // 任务完成时的结果数据，失败时可能包含错误信息
+}
+
+// 定义服务接口
+service AsyncTaskService {
+  // 提交异步任务
+  rpc SubmitAsyncTask(AsyncTaskRequest) returns (AsyncTaskResponse);
+  // 查询任务状态
+  rpc GetTaskStatus(TaskStatusRequest) returns (TaskStatusResponse);
+}

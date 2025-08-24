@@ -1,0 +1,114 @@
+// task.proto - 任务管理相关的消息定义和服务接口
+// 包含任务的创建、查询、列举和取消等功能
+syntax = "proto3";
+
+package worker;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "base/base.proto";
+
+// 任务状态枚举
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0;  // 未指定状态
+  TASK_STATUS_PENDING = 1;      // 等待执行
+  TASK_STATUS_RUNNING = 2;      // 正在执行
+  TASK_STATUS_COMPLETED = 3;    // 执行完成
+  TASK_STATUS_FAILED = 4;       // 执行失败
+  TASK_STATUS_CANCELLED = 5;    // 已取消
+  TASK_STATUS_TIMEOUT = 6;      // 超时
+}
+
+// 创建任务请求
+message CreateTaskRequest {
+  base.BaseRequest base = 1;            // 基础请求信息 
+  string type = 2;                      // 任务类型
+  google.protobuf.Any data = 3;         // 任务数据
+  int64 priority = 4;                   // 优先级 (0-100，值越大优先级越高)
+  int64 delay = 5;                      // 延迟执行时间(毫秒)
+  string callback_url = 6;              // 任务完成后的回调URL
+  string idempotency_key = 7;           // 幂等键，用于防止重复创建任务
+}
+
+
+// 创建任务响应
+message CreateTaskResponse {
+  base.BaseResponse base = 1;          // 基础响应信息
+  string task_uuid = 2;                // 生成的任务ID
+  google.protobuf.Timestamp created_at = 3; // 创建时间 (UTC)
+}
+
+// 获取任务请求
+message GetTaskRequest {
+  base.BaseRequest base = 1;           // 基础请求信息
+  string task_uuid = 2;                // 任务ID
+}
+
+// 任务信息
+message TaskInfo {
+  string task_uuid = 1;                // 任务唯一标识符
+  string type = 2;                     // 任务类型
+  google.protobuf.Any data = 3;        // 任务数据
+  TaskStatus status = 4;               // 任务状态
+  int64 priority = 5;                  // 优先级 (0-100，值越大优先级越高)
+  google.protobuf.Timestamp created_at = 6;  // 创建时间 (UTC)
+  google.protobuf.Timestamp updated_at = 7;  // 更新时间 (UTC)
+  google.protobuf.Timestamp start_at = 8;    // 开始执行时间 (UTC)
+  google.protobuf.Timestamp completed_at = 9; // 完成时间 (UTC)
+  google.protobuf.Any result = 10;           // 任务结果
+  string error = 11;                     // 错误信息(如果有)
+  int32 retry_count = 12;              // 重试次数
+}
+
+// 获取任务响应
+message GetTaskResponse {
+  base.BaseResponse base = 1;          // 基础响应信息
+  TaskInfo task = 2;              // 任务信息
+}
+
+// 列举任务请求
+message ListTasksRequest {
+  base.BaseRequest base = 1;                // 基础请求信息
+  base.PaginationRequest pagination = 2;    // 分页参数
+  TaskStatus status = 3;                   // 任务状态筛选
+  string type = 4;                         // 任务类型筛选
+  google.protobuf.Timestamp start_time = 5; // 开始时间筛选 (UTC)
+  google.protobuf.Timestamp end_time = 6;   // 结束时间筛选 (UTC)
+}
+
+// 列举任务响应
+message ListTasksResponse {
+  base.BaseResponse base = 1;              // 基础响应信息
+  repeated TaskInfo tasks = 2;             // 任务列表
+  base.PaginationResponse pagination = 3;  // 分页响应信息
+}
+
+// 取消任务请求
+message CancelTaskRequest {
+  base.BaseRequest base = 1;                // 基础请求信息
+  string task_uuid = 2;                     // 任务ID
+  string reason = 3;                        // 取消原因
+}
+
+// 取消任务响应
+message CancelTaskResponse {
+  base.BaseResponse base = 1;              // 基础响应信息
+}
+
+// 任务服务接口 - 提供任务全生命周期管理
+service TaskService {
+  // 创建新任务 - 提交一个新任务到系统中
+  // 可指定任务类型、数据、优先级、延迟执行时间和回调URL
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  
+  // 获取任务详情 - 根据任务ID查询任务的详细信息
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  
+  // 列举任务 - 支持按状态、类型、时间范围等条件筛选任务
+  // 支持分页查询
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+  
+  // 取消任务 - 取消指定ID的任务
+  // 已开始执行的任务可能无法取消
+  rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+}

@@ -1,0 +1,34 @@
+syntax = "proto3";
+package common;
+ 
+// PaginationRequest - 分页请求参数，支持传统分页(page+page_size)和游标分页(cursor)
+message PaginationRequest {
+    oneof pagination_type {
+        PageNumberPagination page_number = 1;  // 页码分页参数
+        CursorPagination cursor = 2;            // 游标分页参数
+    }
+    string sort_by = 3;          // 排序字段
+    bool descending = 4;         // 是否降序
+}
+
+// 页码分页参数
+message PageNumberPagination {
+    int32 page = 1;              // 页码，从1开始
+    int32 page_size = 2;         // 每页大小，默认10，最大100
+}
+
+// 游标分页参数
+message CursorPagination {
+    string cursor = 1;           // 游标，上一页的最后一条记录ID
+    int32 page_size = 2;         // 每页大小，默认10，最大100
+}
+ 
+// PaginationResponse - 分页响应参数
+message PaginationResponse {
+    int32 page = 1;              // 当前页码（仅页码分页返回）
+    int32 page_size = 2;         // 每页大小
+    int32 total_pages = 3;       // 总页数（仅页码分页返回）
+    int64 total_items = 4;       // 总记录数
+    string next_cursor = 5;      // 下一页游标（仅游标分页返回）
+    bool has_more = 6;           // 是否有更多数据
+}

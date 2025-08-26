@@ -1,0 +1,30 @@
+ syntax = "proto3";
+ package task.v1;
+ 
+ import "google/protobuf/timestamp.proto";
+ import "google/protobuf/any.proto";
+ 
+enum TaskStatus {
+    TASK_STATUS_UNSPECIFIED = 0;  // 未指定状态
+    TASK_STATUS_PENDING = 1;      // 等待执行
+    TASK_STATUS_RUNNING = 2;      // 正在执行
+    TASK_STATUS_COMPLETED = 3;    // 执行完成
+    TASK_STATUS_FAILED = 4;       // 执行失败
+    TASK_STATUS_CANCELLED = 5;    // 已取消
+    TASK_STATUS_TIMEOUT = 6;      // 超时
+}
+ 
+message TaskInfo {
+    string task_uuid = 1;                // 任务唯一标识符
+    string type = 2;                     // 任务类型
+    google.protobuf.Any data = 3;        // 任务数据
+    TaskStatus status = 4;               // 任务状态
+    int64 priority = 5;                  // 优先级 (0-100，值越大优先级越高)
+    int32 retry_count = 12;              // 重试次数
+    google.protobuf.Timestamp created_at = 6;  // 创建时间 (UTC)
+    google.protobuf.Timestamp updated_at = 7;  // 更新时间 (UTC)
+    google.protobuf.Timestamp start_at = 8;    // 开始执行时间 (UTC)
+    google.protobuf.Timestamp completed_at = 9; // 完成时间 (UTC)
+    google.protobuf.Any result = 10;           // 任务结果
+    string error = 11;                     // 错误信息(如果有)
+}

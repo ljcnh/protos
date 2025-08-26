@@ -1,0 +1,3 @@
+package task;
+import public "task/v1/model.proto";
+import public "task/v1/service.proto";

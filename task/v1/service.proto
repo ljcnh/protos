@@ -1,0 +1,66 @@
+syntax = "proto3";
+package task.v1;
+ 
+import "base/base.proto";
+import "common/pagination.proto";
+import "task/v1/model.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+service TaskService {
+    rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+    rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+    rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+    rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+}
+ 
+message CreateTaskRequest {
+    base.BaseRequest base = 1;            // 基础请求信息 
+    string type = 2;                      // 任务类型
+    google.protobuf.Any data = 3;         // 任务数据
+    int64 priority = 4;                   // 优先级 (0-100，值越大优先级越高)
+    int64 delay = 5;                      // 延迟执行时间(毫秒)
+    string callback_url = 6;              // 任务完成后的回调URL
+    string idempotency_key = 7;           // 幂等键，用于防止重复创建任务
+}
+ 
+message CreateTaskResponse {
+    base.BaseResponse base = 1;               // 基础响应信息
+    string task_uuid = 2;                     // 生成的任务ID
+    google.protobuf.Timestamp created_at = 3; // 创建时间 (UTC)
+}
+ 
+message GetTaskRequest {
+    base.BaseRequest base = 1;           // 基础请求信息
+    string task_uuid = 2;                // 任务ID
+}
+ 
+message GetTaskResponse {
+    base.BaseResponse base = 1;          // 基础响应信息
+    TaskInfo task = 2;                   // 任务信息
+}
+
+message ListTasksRequest {
+    base.BaseRequest base = 1;                // 基础请求信息
+    common.PaginationRequest pagination = 2;  // 分页参数
+    TaskStatus status = 3;                    // 任务状态筛选
+    string type = 4;                          // 任务类型筛选
+    google.protobuf.Timestamp start_time = 5; // 开始时间筛选 (UTC)
+    google.protobuf.Timestamp end_time = 6;   // 结束时间筛选 (UTC)
+}
+ 
+message ListTasksResponse {
+    base.BaseResponse base = 1;               // 基础响应信息
+    repeated TaskInfo tasks = 2;              // 任务列表
+    common.PaginationResponse pagination = 3; // 分页响应信息
+}
+ 
+message CancelTaskRequest {
+    base.BaseRequest base = 1;                // 基础请求信息
+    string task_uuid = 2;                     // 任务ID
+    string reason = 3;                        // 取消原因
+}
+ 
+message CancelTaskResponse {
+    base.BaseResponse base = 1;              // 基础响应信息
+}

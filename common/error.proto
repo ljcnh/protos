@@ -1,0 +1,26 @@
+syntax = "proto3";
+package common;
+
+// ErrorCode - 业务错误码定义，与base.StatusCode配合使用
+// base.StatusCode表示框架层面状态，ErrorCode表示具体业务错误类型
+enum ErrorCode {
+    ERROR_CODE_UNSPECIFIED = 0;         // 未指定错误
+    ERROR_CODE_INVALID_ARGUMENT = 1;    // 参数无效 - 具体参数验证失败
+    ERROR_CODE_INVALID_OPERATION = 2;   // 无效操作 - 当前业务状态不允许此操作
+    ERROR_CODE_BUSINESS_RULE_VIOLATION = 3; // 业务规则违反
+    ERROR_CODE_RESOURCE_LOCKED = 4;     // 资源锁定 - 资源正被其他操作占用
+    ERROR_CODE_QUOTA_EXCEEDED = 5;      // 配额超限 - 超过业务限制额度
+    ERROR_CODE_DEPENDENCY_FAILED = 6;   // 依赖服务失败 - 外部服务调用失败
+    ERROR_CODE_DATA_CONSISTENCY = 7;    // 数据一致性错误 - 数据状态异常
+    ERROR_CODE_VERSION_CONFLICT = 8;    // 版本冲突 - 乐观锁冲突
+    ERROR_CODE_FEATURE_DISABLED = 9;    // 功能未启用
+    ERROR_CODE_RATE_LIMIT_EXCEEDED = 10; // 限流超限 - 超过请求频率限制
+}
+
+// ErrorDetail - 错误详情
+message ErrorDetail {
+    ErrorCode code = 1;                 // 错误码
+    string message = 2;                 // 错误消息
+    string request_id = 3;              // 请求ID，用于追踪
+    map<string, string> metadata = 4;   // 错误元数据
+}

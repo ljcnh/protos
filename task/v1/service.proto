@@ -1,8 +1,10 @@
 syntax = "proto3";
 package task.v1;
+option go_package = "task/v1";
  
-import "base/base.proto";
+import "common/base.proto";
 import "common/pagination.proto";
+import "common/types.proto";
 import "task/v1/model.proto";
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
@@ -10,38 +12,42 @@ import "google/protobuf/timestamp.proto";
 service TaskService {
     rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
     rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+    rpc UpdateTask(UpdateTaskRequest) returns (UpdateTaskResponse);
     rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
     rpc CancelTask(CancelTaskRequest) returns (CancelTaskResponse);
+    rpc PauseTask(PauseTaskRequest) returns (PauseTaskResponse);
+    rpc ResumeTask(ResumeTaskRequest) returns (ResumeTaskResponse);
+    rpc DeleteTask(DeleteTaskRequest) returns (DeleteTaskResponse);
 }
  
 message CreateTaskRequest {
-    base.BaseRequest base = 1;            // 基础请求信息 
+    common.BaseRequest base = 1;          // 基础请求信息 
     string type = 2;                      // 任务类型
     google.protobuf.Any data = 3;         // 任务数据
-    int64 priority = 4;                   // 优先级 (0-100，值越大优先级越高)
+    int32 priority = 4;                   // 优先级 (0-100，值越大优先级越高)
     int64 delay = 5;                      // 延迟执行时间(毫秒)
-    string callback_url = 6;              // 任务完成后的回调URL
+    common.CallbackConfig callback = 6;   // 任务完成后的回调配置
     string idempotency_key = 7;           // 幂等键，用于防止重复创建任务
 }
  
 message CreateTaskResponse {
-    base.BaseResponse base = 1;               // 基础响应信息
+    common.BaseResponse base = 1;             // 基础响应信息
     string task_uuid = 2;                     // 生成的任务ID
     google.protobuf.Timestamp created_at = 3; // 创建时间 (UTC)
 }
  
 message GetTaskRequest {
-    base.BaseRequest base = 1;           // 基础请求信息
+    common.BaseRequest base = 1;         // 基础请求信息
     string task_uuid = 2;                // 任务ID
 }
  
 message GetTaskResponse {
-    base.BaseResponse base = 1;          // 基础响应信息
+    common.BaseResponse base = 1;        // 基础响应信息
     TaskInfo task = 2;                   // 任务信息
 }
 
 message ListTasksRequest {
-    base.BaseRequest base = 1;                // 基础请求信息
+    common.BaseRequest base = 1;              // 基础请求信息
     common.PaginationRequest pagination = 2;  // 分页参数
     TaskStatus status = 3;                    // 任务状态筛选
     string type = 4;                          // 任务类型筛选
@@ -50,17 +56,62 @@ message ListTasksRequest {
 }
  
 message ListTasksResponse {
-    base.BaseResponse base = 1;               // 基础响应信息
+    common.BaseResponse base = 1;             // 基础响应信息
     repeated TaskInfo tasks = 2;              // 任务列表
     common.PaginationResponse pagination = 3; // 分页响应信息
 }
  
 message CancelTaskRequest {
-    base.BaseRequest base = 1;                // 基础请求信息
+    common.BaseRequest base = 1;              // 基础请求信息
     string task_uuid = 2;                     // 任务ID
     string reason = 3;                        // 取消原因
 }
  
 message CancelTaskResponse {
-    base.BaseResponse base = 1;              // 基础响应信息
+    common.BaseResponse base = 1;              // 基础响应信息
+}
+
+// 更新任务
+message UpdateTaskRequest {
+    common.BaseRequest base = 1;              // 基础请求信息
+    string task_uuid = 2;                     // 任务ID
+    optional int32 priority = 3;             // 新优先级（可选）
+    optional google.protobuf.Any data = 4;    // 新任务数据（可选）
+}
+
+message UpdateTaskResponse {
+    common.BaseResponse base = 1;              // 基础响应信息
+    google.protobuf.Timestamp updated_at = 2; // 更新时间
+}
+
+// 暂停任务
+message PauseTaskRequest {
+    common.BaseRequest base = 1;              // 基础请求信息
+    string task_uuid = 2;                     // 任务ID
+    string reason = 3;                        // 暂停原因
+}
+
+message PauseTaskResponse {
+    common.BaseResponse base = 1;              // 基础响应信息
+}
+
+// 恢复任务
+message ResumeTaskRequest {
+    common.BaseRequest base = 1;              // 基础请求信息
+    string task_uuid = 2;                     // 任务ID
+}
+
+message ResumeTaskResponse {
+    common.BaseResponse base = 1;              // 基础响应信息
+}
+
+// 删除任务
+message DeleteTaskRequest {
+    common.BaseRequest base = 1;              // 基础请求信息
+    string task_uuid = 2;                     // 任务ID
+    bool force = 3;                           // 是否强制删除（即使任务正在运行）
+}
+
+message DeleteTaskResponse {
+    common.BaseResponse base = 1;              // 基础响应信息
 }

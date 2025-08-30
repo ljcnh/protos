@@ -1,0 +1,33 @@
+syntax = "proto3";
+package common;
+option go_package = "common";
+
+// 过滤条件 - 用于构建查询过滤条件
+// 支持多种比较操作符，可用于精确查询和模糊查询
+message FilterCondition {
+  string field = 1;             // 字段名，要过滤的字段
+  string operator = 2;          // 操作符: eq(等于), ne(不等于), gt(大于), ge(大于等于), lt(小于), le(小于等于), in(在范围内), like(模糊匹配)
+  string value = 3;             // 值，过滤的目标值
+}
+
+// 排序条件 - 用于指定查询结果的排序方式
+// 可指定多个排序字段，按顺序应用
+message SortCondition {
+  string field = 1;             // 字段名，要排序的字段
+  bool desc = 2;                // 是否降序排序，true表示降序，false表示升序
+}
+
+// 用户信息引用 - 统一的用户标识结构
+message UserRef {
+  string user_id = 1;               // 用户ID
+  string username = 2;              // 用户名（可选，用于显示）
+}
+
+// 回调配置 - 用于异步操作完成后的通知
+message CallbackConfig {
+  string url = 1;               // 回调URL
+  map<string, string> headers = 2; // HTTP头信息
+  int32 timeout_seconds = 3;    // 超时时间（秒），默认30秒
+  int32 retry_count = 4;        // 重试次数，默认3次
+  string secret = 5;            // 签名密钥，用于验证回调请求的真实性
+}

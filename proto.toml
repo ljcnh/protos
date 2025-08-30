@@ -1,0 +1,36 @@
+# Proto配置文件
+# 该文件定义了protoc编译的基本配置
+
+[protoc]
+# protoc基本选项
+version = ">=3.10.0"
+proto_path = ["."]
+
+# Go代码生成选项
+[go]
+out = "."
+opt = ["paths=source_relative"]
+
+# Go gRPC代码生成选项
+[go-grpc]
+out = "."
+opt = ["paths=source_relative"]
+
+# 项目配置
+[projects]
+# 通用模块，所有项目都会依赖
+common = ["common"]
+
+# 具体项目列表
+projects = ["task", "flow"]
+
+# 输出目录配置
+[output]
+# 是否保持源码相对路径
+source_relative = true
+
+# 是否生成gRPC代码
+generate_grpc = true
+
+# 是否生成Go代码
+generate_go = true

@@ -1,0 +1,84 @@
+syntax = "proto3";
+package flow.v1;
+option go_package = "flow/v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "common/types.proto";
+
+// 工作流状态枚举
+enum FlowStatus {
+    FLOW_STATUS_UNSPECIFIED = 0;  // 未指定状态
+    FLOW_STATUS_DRAFT = 1;        // 草稿
+    FLOW_STATUS_ACTIVE = 2;       // 活跃
+    FLOW_STATUS_PAUSED = 3;       // 暂停
+    FLOW_STATUS_COMPLETED = 4;    // 完成
+    FLOW_STATUS_CANCELLED = 5;    // 取消
+    FLOW_STATUS_FAILED = 6;       // 失败
+}
+
+// 工作流步骤状态枚举
+enum FlowStepStatus {
+    FLOW_STEP_STATUS_UNSPECIFIED = 0;  // 未指定状态
+    FLOW_STEP_STATUS_PENDING = 1;      // 等待执行
+    FLOW_STEP_STATUS_RUNNING = 2;      // 正在执行
+    FLOW_STEP_STATUS_WAITING = 3;      // 等待人工处理
+    FLOW_STEP_STATUS_COMPLETED = 4;    // 已完成
+    FLOW_STEP_STATUS_FAILED = 5;       // 执行失败
+    FLOW_STEP_STATUS_SKIPPED = 6;      // 已跳过
+    FLOW_STEP_STATUS_CANCELLED = 7;    // 已取消
+}
+
+// 工作流实例状态枚举
+enum FlowInstanceStatus {
+    FLOW_INSTANCE_STATUS_UNSPECIFIED = 0;  // 未指定状态
+    FLOW_INSTANCE_STATUS_PENDING = 1;      // 等待开始
+    FLOW_INSTANCE_STATUS_RUNNING = 2;      // 运行中
+    FLOW_INSTANCE_STATUS_WAITING = 3;      // 等待人工处理
+    FLOW_INSTANCE_STATUS_COMPLETED = 4;    // 完成
+    FLOW_INSTANCE_STATUS_FAILED = 5;       // 失败
+    FLOW_INSTANCE_STATUS_CANCELLED = 6;    // 取消
+}
+
+// 工作流定义
+message FlowDefinition {
+    string flow_id = 1;                     // 工作流ID
+    string name = 2;                        // 工作流名称
+    string description = 3;                 // 描述
+    string version = 4;                     // 版本号
+    FlowStatus status = 5;                  // 状态
+    google.protobuf.Any definition = 6;     // 工作流定义数据
+    google.protobuf.Timestamp created_at = 7;  // 创建时间
+    google.protobuf.Timestamp updated_at = 8;  // 更新时间
+    common.UserRef created_by = 9;          // 创建人
+}
+
+// 工作流实例
+message FlowInstance {
+    string instance_id = 1;                 // 实例ID
+    string flow_id = 2;                     // 工作流ID
+    string flow_version = 3;                // 工作流版本
+    FlowInstanceStatus status = 4;          // 实例状态
+    google.protobuf.Any input_data = 5;     // 输入数据
+    google.protobuf.Any output_data = 6;    // 输出数据
+    google.protobuf.Any context = 7;        // 执行上下文
+    google.protobuf.Timestamp started_at = 8;   // 开始时间
+    google.protobuf.Timestamp completed_at = 9; // 完成时间
+    string error_message = 10;              // 错误信息
+    common.UserRef started_by = 11;         // 启动人
+}
+
+// 工作流步骤
+message FlowStep {
+    string step_id = 1;                     // 步骤ID
+    string instance_id = 2;                 // 实例ID
+    string step_name = 3;                   // 步骤名称
+    string step_type = 4;                   // 步骤类型
+    FlowStepStatus status = 5;          // 步骤状态
+    google.protobuf.Any input_data = 6;     // 输入数据
+    google.protobuf.Any output_data = 7;    // 输出数据
+    google.protobuf.Timestamp started_at = 8;   // 开始时间
+    google.protobuf.Timestamp completed_at = 9; // 完成时间
+    string error_message = 10;              // 错误信息
+    int32 retry_count = 11;                 // 重试次数
+}

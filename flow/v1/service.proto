@@ -1,0 +1,184 @@
+syntax = "proto3";
+package flow.v1;
+option go_package = "flow/v1";
+
+import "common/base.proto";
+import "common/pagination.proto";
+import "common/types.proto";
+import "flow/v1/model.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+
+// 工作流服务定义
+service FlowService {
+    // 工作流定义管理
+    rpc CreateFlowDefinition(CreateFlowDefinitionRequest) returns (CreateFlowDefinitionResponse);
+    rpc GetFlowDefinition(GetFlowDefinitionRequest) returns (GetFlowDefinitionResponse);
+    rpc UpdateFlowDefinition(UpdateFlowDefinitionRequest) returns (UpdateFlowDefinitionResponse);
+    rpc ListFlowDefinitions(ListFlowDefinitionsRequest) returns (ListFlowDefinitionsResponse);
+    rpc DeleteFlowDefinition(DeleteFlowDefinitionRequest) returns (DeleteFlowDefinitionResponse);
+    
+    // 工作流实例管理
+    rpc StartFlowInstance(StartFlowInstanceRequest) returns (StartFlowInstanceResponse);
+    rpc GetFlowInstance(GetFlowInstanceRequest) returns (GetFlowInstanceResponse);
+    rpc ListFlowInstances(ListFlowInstancesRequest) returns (ListFlowInstancesResponse);
+    rpc CancelFlowInstance(CancelFlowInstanceRequest) returns (CancelFlowInstanceResponse);
+    
+    // 工作流步骤管理
+    rpc GetFlowStep(GetFlowStepRequest) returns (GetFlowStepResponse);
+    rpc ListFlowSteps(ListFlowStepsRequest) returns (ListFlowStepsResponse);
+    rpc CompleteFlowStep(CompleteFlowStepRequest) returns (CompleteFlowStepResponse);
+}
+
+// 创建工作流定义
+message CreateFlowDefinitionRequest {
+    common.BaseRequest base = 1;
+    string name = 2;
+    string description = 3;
+    google.protobuf.Any definition = 4;
+}
+
+message CreateFlowDefinitionResponse {
+    common.BaseResponse base = 1;
+    string flow_id = 2;
+    string version = 3;
+}
+
+// 获取工作流定义
+message GetFlowDefinitionRequest {
+    common.BaseRequest base = 1;
+    string flow_id = 2;
+    string version = 3;  // 可选，不指定则返回最新版本
+}
+
+message GetFlowDefinitionResponse {
+    common.BaseResponse base = 1;
+    FlowDefinition flow_definition = 2;
+}
+
+// 更新工作流定义
+message UpdateFlowDefinitionRequest {
+    common.BaseRequest base = 1;
+    string flow_id = 2;
+    string name = 3;
+    string description = 4;
+    google.protobuf.Any definition = 5;
+}
+
+message UpdateFlowDefinitionResponse {
+    common.BaseResponse base = 1;
+    string version = 2;  // 新版本号
+}
+
+// 列出工作流定义
+message ListFlowDefinitionsRequest {
+    common.BaseRequest base = 1;
+    common.PaginationRequest pagination = 2;
+    FlowStatus status = 3;  // 可选状态过滤
+}
+
+message ListFlowDefinitionsResponse {
+    common.BaseResponse base = 1;
+    repeated FlowDefinition flow_definitions = 2;
+    common.PaginationResponse pagination = 3;
+}
+
+// 删除工作流定义
+message DeleteFlowDefinitionRequest {
+    common.BaseRequest base = 1;
+    string flow_id = 2;
+}
+
+message DeleteFlowDefinitionResponse {
+    common.BaseResponse base = 1;
+}
+
+// 启动工作流实例
+message StartFlowInstanceRequest {
+    common.BaseRequest base = 1;
+    string flow_id = 2;
+    string flow_version = 3;  // 可选，不指定则使用最新版本
+    google.protobuf.Any input_data = 4;
+    common.CallbackConfig callback = 5;   // 可选回调配置
+}
+
+message StartFlowInstanceResponse {
+    common.BaseResponse base = 1;
+    string instance_id = 2;
+}
+
+// 获取工作流实例
+message GetFlowInstanceRequest {
+    common.BaseRequest base = 1;
+    string instance_id = 2;
+}
+
+message GetFlowInstanceResponse {
+    common.BaseResponse base = 1;
+    FlowInstance flow_instance = 2;
+}
+
+// 列出工作流实例
+message ListFlowInstancesRequest {
+    common.BaseRequest base = 1;
+    common.PaginationRequest pagination = 2;
+    string flow_id = 3;  // 可选，按工作流ID过滤
+    FlowInstanceStatus status = 4;  // 可选状态过滤
+    google.protobuf.Timestamp start_time = 5;  // 可选时间范围过滤
+    google.protobuf.Timestamp end_time = 6;
+}
+
+message ListFlowInstancesResponse {
+    common.BaseResponse base = 1;
+    repeated FlowInstance flow_instances = 2;
+    common.PaginationResponse pagination = 3;
+}
+
+// 取消工作流实例
+message CancelFlowInstanceRequest {
+    common.BaseRequest base = 1;
+    string instance_id = 2;
+    string reason = 3;
+}
+
+message CancelFlowInstanceResponse {
+    common.BaseResponse base = 1;
+}
+
+// 获取工作流步骤
+message GetFlowStepRequest {
+    common.BaseRequest base = 1;
+    string step_id = 2;
+}
+
+message GetFlowStepResponse {
+    common.BaseResponse base = 1;
+    FlowStep flow_step = 2;
+}
+
+// 列出工作流步骤
+message ListFlowStepsRequest {
+    common.BaseRequest base = 1;
+    common.PaginationRequest pagination = 2;
+    string instance_id = 3;  // 按实例ID过滤
+    FlowStepStatus status = 4;  // 可选状态过滤
+}
+
+message ListFlowStepsResponse {
+    common.BaseResponse base = 1;
+    repeated FlowStep flow_steps = 2;
+    common.PaginationResponse pagination = 3;
+}
+
+// 完成工作流步骤
+message CompleteFlowStepRequest {
+    common.BaseRequest base = 1;
+    string step_id = 2;
+    google.protobuf.Any output_data = 3;
+    bool is_success = 4;
+    string error_message = 5;  // 失败时的错误信息
+}
+
+message CompleteFlowStepResponse {
+    common.BaseResponse base = 1;
+}

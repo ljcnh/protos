@@ -1,0 +1,42 @@
+# 设置换行符处理规则
+
+# 默认规则：文本文件根据平台自动转换换行符
+* text=auto
+
+# Shell脚本应始终使用LF换行符（Unix/Linux格式）
+*.sh text eol=lf
+
+# 批处理文件应始终使用CRLF换行符（Windows格式）
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Makefile应使用LF换行符
+Makefile text eol=lf
+makefile text eol=lf
+
+# 文档文件使用CRLF（Windows环境更兼容）
+*.md text eol=crlf
+*.txt text eol=crlf
+
+# 配置文件使用LF（更通用）
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+
+# Proto文件使用LF（protoc在各平台都能正确处理）
+*.proto text eol=lf
+
+# 二进制文件不进行换行符转换
+*.pb binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.zip binary
+*.tar.gz binary
+*.tgz binary
+
+# Git相关文件
+.gitignore text eol=lf
+.gitattributes text eol=lf

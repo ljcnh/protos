@@ -1,0 +1,38 @@
+syntax = "proto3";
+package common;
+option go_package = "common";
+
+import "google/protobuf/timestamp.proto";
+
+// 认证信息
+message AuthInfo {
+    string token = 1;                        // 认证令牌
+    string user_id = 2;                      // 用户ID
+    repeated string roles = 3;               // 角色列表
+    map<string, string> claims = 4;          // JWT Claims或其他认证信息
+    google.protobuf.Timestamp expires_at = 5; // 令牌过期时间
+}
+
+// 权限检查请求
+message PermissionCheckRequest {
+    string user_id = 1;                      // 用户ID
+    string resource = 2;                     // 资源标识
+    string action = 3;                       // 操作类型
+    map<string, string> context = 4;         // 上下文信息
+}
+
+// 权限检查响应
+message PermissionCheckResponse {
+    bool allowed = 1;                        // 是否允许
+    string reason = 2;                       // 拒绝原因（如果不允许）
+}
+
+// API密钥信息
+message ApiKeyInfo {
+    string key_id = 1;                        // 密钥ID
+    string name = 2;                          // 密钥名称
+    repeated string scopes = 3;               // 权限范围
+    google.protobuf.Timestamp created_at = 4; // 创建时间
+    google.protobuf.Timestamp expires_at = 5; // 过期时间
+    bool is_active = 6;                       // 是否激活
+}

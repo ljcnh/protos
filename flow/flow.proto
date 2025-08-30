@@ -1,0 +1,6 @@
+syntax = "proto3";
+package flow;
+option go_package = "flow";
+
+import public "flow/v1/model.proto";
+import public "flow/v1/service.proto";

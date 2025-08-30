@@ -1,0 +1,43 @@
+syntax = "proto3";
+package common;
+option go_package = "common";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+import "common/auth.proto";
+
+// 通用状态码枚举 - 定义了所有RPC服务可能返回的状态
+// 这些状态码遵循HTTP状态码的设计理念，但针对RPC服务进行了优化
+// 建议优先使用具体业务状态码，此状态码仅用于框架层面的通用状态表示
+enum StatusCode {
+  STATUS_CODE_UNSPECIFIED = 0;        // 未指定状态 - 保留默认值
+  STATUS_CODE_SUCCESS = 1;            // 成功 - 操作已完成
+  STATUS_CODE_INVALID_ARGUMENT = 2;   // 参数错误 - 请求参数无效
+  STATUS_CODE_UNAUTHENTICATED = 3;    // 未认证 - 缺少有效身份验证凭据
+  STATUS_CODE_PERMISSION_DENIED = 4;  // 权限拒绝 - 调用方没有足够权限
+  STATUS_CODE_NOT_FOUND = 5;          // 资源不存在 - 请求的资源不存在
+  STATUS_CODE_CONFLICT = 6;           // 资源冲突 - 请求与当前状态冲突
+  STATUS_CODE_FAILED_PRECONDITION = 7; // 前置条件失败 - 系统状态不满足操作要求
+  STATUS_CODE_ABORTED = 8;            // 操作中止 - 并发冲突导致操作中止
+  STATUS_CODE_OUT_OF_RANGE = 9;       // 超出范围 - 操作超出有效范围
+  STATUS_CODE_INTERNAL = 10;          // 内部错误 - 服务器内部错误
+  STATUS_CODE_UNAVAILABLE = 11;       // 服务不可用 - 服务暂时无法处理请求
+  STATUS_CODE_DEADLINE_EXCEEDED = 12; // 超时 - 请求处理超时
+  STATUS_CODE_RESOURCE_EXHAUSTED = 13; // 资源耗尽 - 超出配额或频率限制
+}
+
+// 基础响应消息 - 所有RPC服务的响应都应包含这些字段
+message BaseResponse {
+  StatusCode status = 1;       // 状态码
+  string message = 2;          // 消息描述
+  google.protobuf.Any data = 3; // 附加数据，可用于传递任意类型的响应数据
+}
+
+// 基础请求消息 - 所有RPC服务的请求都应包含这些字段
+// 提供了请求的基本上下文信息
+message BaseRequest {
+  google.protobuf.Timestamp timestamp = 1; // 请求时间戳
+  string request_id = 2;                   // 请求唯一标识符，用于追踪请求
+  map<string, string> metadata = 3;        // 元数据，可用于传递额外的上下文信息
+  optional AuthInfo auth = 4;              // 认证信息（可选，内部服务调用可不填）
+}

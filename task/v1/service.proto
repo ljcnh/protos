@@ -26,7 +26,7 @@ message CreateTaskRequest {
     google.protobuf.Any data = 3;         // 任务数据
     int32 priority = 4;                   // 优先级 (0-100，值越大优先级越高)
     int64 delay = 5;                      // 延迟执行时间(毫秒)
-    common.CallbackConfig callback = 6;   // 任务完成后的回调配置
+    optional common.CallbackConfig callback = 6;   // 任务完成后的回调配置（可选）
     string idempotency_key = 7;           // 幂等键，用于防止重复创建任务
 }
  
@@ -51,8 +51,7 @@ message ListTasksRequest {
     common.PaginationRequest pagination = 2;  // 分页参数
     TaskStatus status = 3;                    // 任务状态筛选
     string type = 4;                          // 任务类型筛选
-    google.protobuf.Timestamp start_time = 5; // 开始时间筛选 (UTC)
-    google.protobuf.Timestamp end_time = 6;   // 结束时间筛选 (UTC)
+    optional common.TimeRange time_range = 5; // 时间范围筛选 (UTC)
 }
  
 message ListTasksResponse {

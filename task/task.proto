@@ -1,3 +1,6 @@
+syntax = "proto3";
 package task;
+option go_package = "task";
+
 import public "task/v1/model.proto";
 import public "task/v1/service.proto";

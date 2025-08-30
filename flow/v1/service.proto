@@ -99,7 +99,7 @@ message StartFlowInstanceRequest {
     string flow_id = 2;
     string flow_version = 3;  // 可选，不指定则使用最新版本
     google.protobuf.Any input_data = 4;
-    common.CallbackConfig callback = 5;   // 可选回调配置
+    optional common.CallbackConfig callback = 5;   // 可选回调配置
 }
 
 message StartFlowInstanceResponse {
@@ -124,8 +124,7 @@ message ListFlowInstancesRequest {
     common.PaginationRequest pagination = 2;
     string flow_id = 3;  // 可选，按工作流ID过滤
     FlowInstanceStatus status = 4;  // 可选状态过滤
-    google.protobuf.Timestamp start_time = 5;  // 可选时间范围过滤
-    google.protobuf.Timestamp end_time = 6;
+    optional common.TimeRange time_range = 5;  // 可选时间范围过滤
 }
 
 message ListFlowInstancesResponse {

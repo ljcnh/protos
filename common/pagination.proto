@@ -1,5 +1,6 @@
 syntax = "proto3";
 package common;
+option go_package = "common";
  
 // PaginationRequest - 分页请求参数，支持传统分页(page+page_size)和游标分页(cursor)
 message PaginationRequest {

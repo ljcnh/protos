@@ -4,13 +4,36 @@ option go_package = "common";
 
 import "google/protobuf/timestamp.proto";
 
-// 认证信息
+// 认证信息 - 支持多种认证方式
 message AuthInfo {
-    string token = 1;                        // 认证令牌
+    oneof auth_type {
+        TokenAuth token_auth = 1;           // JWT Token认证
+        ApiKeyAuth api_key_auth = 2;        // API Key认证
+        InternalAuth internal_auth = 3;     // 内部服务认证
+    }
+    repeated string roles = 4;               // 角色列表
+    map<string, string> claims = 5;          // 额外声明信息
+    google.protobuf.Timestamp expires_at = 6; // 认证过期时间
+}
+
+// JWT Token认证
+message TokenAuth {
+    string token = 1;                        // JWT Token
     string user_id = 2;                      // 用户ID
-    repeated string roles = 3;               // 角色列表
-    map<string, string> claims = 4;          // JWT Claims或其他认证信息
-    google.protobuf.Timestamp expires_at = 5; // 令牌过期时间
+    string issuer = 3;                       // 签发者
+}
+
+// API Key认证
+message ApiKeyAuth {
+    string api_key = 1;                      // API密钥
+    string api_secret = 2;                   // API密钥对应的secret（用于签名验证）
+    string app_id = 3;                       // 应用ID
+}
+
+// 内部服务认证
+message InternalAuth {
+    string service_name = 1;                 // 服务名称
+    string service_token = 2;                // 服务间认证Token
 }
 
 // 权限检查请求
@@ -27,12 +50,18 @@ message PermissionCheckResponse {
     string reason = 2;                       // 拒绝原因（如果不允许）
 }
 
-// API密钥信息
+// API密钥信息 - 用于管理API密钥
 message ApiKeyInfo {
     string key_id = 1;                        // 密钥ID
-    string name = 2;                          // 密钥名称
-    repeated string scopes = 3;               // 权限范围
-    google.protobuf.Timestamp created_at = 4; // 创建时间
-    google.protobuf.Timestamp expires_at = 5; // 过期时间
-    bool is_active = 6;                       // 是否激活
+    string api_key = 2;                       // API Key（公开部分）
+    string name = 3;                          // 密钥名称
+    string description = 4;                   // 密钥描述
+    repeated string scopes = 5;               // 权限范围
+    google.protobuf.Timestamp created_at = 6; // 创建时间
+    google.protobuf.Timestamp expires_at = 7; // 过期时间
+    google.protobuf.Timestamp last_used_at = 8; // 最后使用时间
+    bool is_active = 9;                       // 是否激活
+    string created_by = 10;                   // 创建者
+    int64 usage_count = 11;                   // 使用次数
+    repeated string allowed_ips = 12;         // 允许的IP地址列表
 }
